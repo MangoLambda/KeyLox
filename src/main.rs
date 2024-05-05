@@ -15,8 +15,7 @@ mod controller;
 mod models;
 mod ui;
 use crate::{
-    app::app::{App, CurrentScreen, CurrentlyEditingCredentialField},
-    app::credentials_storage,
+    app::app::{App, CurrentScreen},
     ui::ui,
 };
 

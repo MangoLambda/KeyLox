@@ -1,9 +1,6 @@
 use std::io;
 
-use crate::{
-    app::app::{App, CurrentScreen, CurrentlyEditingCredentialField},
-    ui::ui,
-};
+use crate::app::app::{App, CurrentScreen, CurrentlyEditingCredentialField};
 
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},

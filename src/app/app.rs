@@ -1,9 +1,6 @@
 use serde_json::Result;
 
-use crate::models::{
-    self,
-    credentials::{self, Credential, Credentials},
-};
+use crate::models::credentials::{Credential, Credentials};
 
 use super::credentials_storage;
 

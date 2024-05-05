@@ -1,10 +1,6 @@
-use std::time::Duration;
-use std::{io, thread};
+use std::io;
 
-use crate::{
-    app::app::{App, CurrentScreen},
-    ui::ui,
-};
+use crate::app::app::{App, CurrentScreen};
 
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},

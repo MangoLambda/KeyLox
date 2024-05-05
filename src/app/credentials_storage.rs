@@ -3,10 +3,7 @@ use std::io::Write;
 use std::path::Path;
 use std::{error::Error, io::BufReader};
 
-use crate::models::{
-    self,
-    credentials::{self, Credential, Credentials},
-};
+use crate::models::credentials::Credentials;
 
 pub fn store_credentials(credentials: &Credentials) -> Result<(), Box<dyn Error>> {
     let mut file = File::create("credentials.json")?;
