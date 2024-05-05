@@ -33,6 +33,9 @@ pub fn handle_website_credentials(app: &mut App, key_event: KeyEvent) -> Option<
             }
         }
         KeyCode::Down | KeyCode::Tab => {
+            if app.emails.len() == 0 {
+                return None;
+            }
             if app.selected_email_index < app.emails.len() - 1 {
                 app.selected_email_index += 1;
             }

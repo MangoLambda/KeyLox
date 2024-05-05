@@ -33,6 +33,10 @@ pub fn handle_main_credentials(app: &mut App, key_event: KeyEvent) -> Option<io:
             }
         }
         KeyCode::Down | KeyCode::Tab => {
+            if app.websites.len() == 0 {
+                return None;
+            }
+
             if app.selected_website_index < app.websites.len() - 1 {
                 app.selected_website_index += 1;
             }

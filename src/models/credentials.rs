@@ -42,7 +42,7 @@ impl Credentials {
 
     pub fn remove_credential(&mut self, website: &str, email: &str) {
         self.credentials
-            .retain(|c| c.website != website && c.email != email);
+            .retain(|c| c.website != website || c.email != email);
     }
 
     pub fn get_websites(&self) -> Vec<String> {

@@ -73,6 +73,15 @@ impl App {
     }
 
     pub fn load_emails(&mut self) {
+        // TODO: refactor
+        if self.websites.len() == 0 {
+            self.emails = Vec::new();
+            return;
+        }
+
+        self.selected_website_index =
+            std::cmp::min(self.selected_website_index, self.websites.len() - 1);
+
         if self.selected_website_index >= self.websites.len() {
             // TODO: log
             return;
@@ -121,9 +130,19 @@ impl App {
     }
 
     pub fn remove_selected_credential(&mut self) {
+        if self.websites.len() == 0 {
+            return;
+        }
+        if self.emails.len() == 0 {
+            return;
+        }
+
+        // TODO: make this better
         if self.websites.len() <= self.selected_website_index
             || self.emails.len() <= self.selected_email_index
         {
+            self.selected_website_index = self.websites.len() - 1;
+            self.selected_email_index = self.emails.len() - 1;
             return;
         }
 
