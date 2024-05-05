@@ -9,6 +9,7 @@ use ratatui::{
 use crate::app::app::{App, CurrentScreen, CurrentlyEditingCredentialField};
 
 mod footer;
+mod helpers;
 mod title;
 
 const TITLE_CHUNK_INDEX: usize = 0;
@@ -91,8 +92,11 @@ fn render_main_credentials_screen(f: &mut Frame, app: &App, chunks: &[Rect]) {
         })
         .collect();
 
+    let height = chunks[MAIN_CHUNK_INDEX].height - 2; // TODO: why is the height not equal to number of rows?
+    let visible_rows = helpers::get_visible_rows(app.selected_website_index, rows, height);
+
     let widths = [Constraint::Length(5), Constraint::Length(5)];
-    let table = Table::new(rows, widths)
+    let table = Table::new(visible_rows, widths)
         .block(Block::default().borders(Borders::ALL))
         .widths(&[Constraint::Percentage(100)]);
 
@@ -119,8 +123,11 @@ fn render_website_credentials_screen(f: &mut Frame, app: &App, chunks: &[Rect]) 
         })
         .collect();
 
+    let height = chunks[MAIN_CHUNK_INDEX].height - 2; // TODO: why is the height not equal to number of rows?
+    let visible_rows = helpers::get_visible_rows(app.selected_email_index, rows, height);
+
     let widths = [Constraint::Length(5), Constraint::Length(5)];
-    let table = Table::new(rows, widths)
+    let table = Table::new(visible_rows, widths)
         .block(Block::default().borders(Borders::ALL))
         .widths(&[Constraint::Percentage(100)]);
 
