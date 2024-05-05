@@ -25,7 +25,11 @@ pub fn handle_website_credentials(app: &mut App, key_event: KeyEvent) -> Option<
         KeyCode::Char('n') => {
             app.current_screen = CurrentScreen::SpecificCredentialScreen;
             app.currently_editing_credential_field = Some(CurrentlyEditingCredentialField::Email);
-            app.website_input = app.credentials.get_websites()[app.selected_website_index].clone();
+
+            if app.credentials.get_websites().len() > app.selected_website_index {
+                app.website_input =
+                    app.credentials.get_websites()[app.selected_website_index].clone();
+            }
         }
         KeyCode::Up | KeyCode::BackTab => {
             if app.selected_email_index > 0 {
