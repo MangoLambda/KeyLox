@@ -1,4 +1,10 @@
-use std::{error::Error, io};
+use std::{
+    error::Error,
+    io::{self, stdout},
+    panic,
+};
+
+use color_eyre::{config::HookBuilder, eyre};
 
 use crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
@@ -20,6 +26,9 @@ use crate::{
 };
 
 fn main() -> Result<(), Box<dyn Error>> {
+    // setup panic hook
+    install_hooks()?;
+
     // setup terminal
     enable_raw_mode()?;
     let mut stderr = io::stderr(); // This is a special case. Normally using stdout is fine
@@ -105,4 +114,35 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<
             }
         }
     }
+}
+
+/// This replaces the standard color_eyre panic and error hooks with hooks that
+/// restore the terminal before printing the panic or error.
+pub fn install_hooks() -> color_eyre::Result<()> {
+    let (panic_hook, eyre_hook) = HookBuilder::default().into_hooks();
+
+    // convert from a color_eyre PanicHook to a standard panic hook
+    let panic_hook = panic_hook.into_panic_hook();
+    panic::set_hook(Box::new(move |panic_info| {
+        restore().unwrap();
+        panic_hook(panic_info);
+    }));
+
+    // convert from a color_eyre EyreHook to a eyre ErrorHook
+    let eyre_hook = eyre_hook.into_eyre_hook();
+    eyre::set_hook(Box::new(
+        move |error: &(dyn std::error::Error + 'static)| {
+            restore().unwrap();
+            eyre_hook(error)
+        },
+    ))?;
+
+    Ok(())
+}
+
+/// Restore the terminal to its original state
+pub fn restore() -> io::Result<()> {
+    execute!(stdout(), LeaveAlternateScreen)?;
+    disable_raw_mode()?;
+    Ok(())
 }
