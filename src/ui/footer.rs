@@ -1,12 +1,12 @@
 use ratatui::{
-    layout::{Constraint, Direction, Layout, Rect},
+    layout::Rect,
     style::{Color, Style},
-    text::{Line, Span, Text},
-    widgets::{Block, Borders, Cell, Clear, List, ListItem, Paragraph, Row, Table, Widget, Wrap},
+    text::{Line, Span},
+    widgets::{Block, Borders, Paragraph},
     Frame,
 };
 
-use crate::app::app::{App, CurrentScreen, CurrentlyEditingCredentialField};
+use crate::app::app::{App, CurrentScreen};
 
 const TITLE_CHUNK_INDEX: usize = 0;
 const MAIN_CHUNK_INDEX: usize = 1;
@@ -27,7 +27,7 @@ pub fn render_footer(f: &mut Frame, app: &App, chunks: &[Rect]) {
                 Style::default().fg(Color::Red),
             ),
             CurrentScreen::SpecificCredentialScreen => Span::styled(
-                "(Esc) to quit / (Return | Ctrl+S) to save",
+                "(Esc) to quit / (Return | ^S) to save",
                 Style::default().fg(Color::Red),
             ),
             CurrentScreen::Exiting => Span::styled(
@@ -40,11 +40,5 @@ pub fn render_footer(f: &mut Frame, app: &App, chunks: &[Rect]) {
     let key_notes_footer =
         Paragraph::new(Line::from(current_keys_hint)).block(Block::default().borders(Borders::ALL));
 
-    let footer_chunks = Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(100)])
-        .split(chunks[FOOTER_CHUNK_INDEX]);
-
-    // TODO: method should return widget instead?
-    f.render_widget(key_notes_footer, footer_chunks[0]);
+    f.render_widget(key_notes_footer, chunks[FOOTER_CHUNK_INDEX]);
 }
