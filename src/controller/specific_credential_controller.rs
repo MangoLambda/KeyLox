@@ -5,6 +5,7 @@ use crate::app::app::{App, CurrentScreen, CurrentlyEditingCredentialField};
 use crossterm::{
     event::{
         self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEvent, KeyEventKind,
+        KeyModifiers,
     },
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
@@ -63,8 +64,16 @@ pub fn handle_specific_credential(app: &mut App, key_event: KeyEvent) -> Option<
                 }
             }
         }
-        // TODO: Change this to a different keybinding
-        KeyCode::PageDown => {
+        _ => {}
+    }
+
+    match key_event {
+        KeyEvent {
+            code: KeyCode::Char('s'),
+            modifiers: KeyModifiers::CONTROL,
+            kind: _,
+            state: _,
+        } => {
             app.save_credential();
             app.current_screen = CurrentScreen::MainCredentialScreen;
         }
