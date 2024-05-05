@@ -15,3 +15,6 @@ Cargo.lock
 
 # Mac OS X Finder metadata files
 .DS_Store
+
+# Generated credentials file
+credentials.json

@@ -3,13 +3,15 @@ use std::io;
 use crate::app::app::{App, CurrentScreen};
 
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
+    event::{
+        self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEvent, KeyEventKind,
+    },
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 
-pub fn handle_master_password(app: &mut App, key: KeyCode) -> Option<io::Result<bool>> {
-    match key {
+pub fn handle_master_password(app: &mut App, key_event: KeyEvent) -> Option<io::Result<bool>> {
+    match key_event.code {
         KeyCode::Enter => {
             if app.validate_master_password(&app.master_password_input) {
                 app.current_screen = CurrentScreen::MainCredentialScreen;

@@ -55,8 +55,8 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<
     loop {
         terminal.draw(|f| ui(f, app))?;
 
-        if let Event::Key(key) = event::read()? {
-            if key.kind == event::KeyEventKind::Release {
+        if let Event::Key(key_event) = event::read()? {
+            if key_event.kind == event::KeyEventKind::Release {
                 // Skip events that are not KeyEventKind::Press
                 continue;
             }
@@ -64,7 +64,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<
                 CurrentScreen::MasterPasswordRequired => {
                     if let Some(res) =
                         controller::master_password_controller::handle_master_password(
-                            app, key.code,
+                            app, key_event,
                         )
                     {
                         return res;
@@ -73,7 +73,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<
                 CurrentScreen::MainCredentialScreen => {
                     if let Some(res) =
                         controller::main_credentials_controller::handle_main_credentials(
-                            app, key.code,
+                            app, key_event,
                         )
                     {
                         return res;
@@ -82,7 +82,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<
                 CurrentScreen::WebsiteCredentialScreen => {
                     if let Some(res) =
                         controller::website_credentials_controller::handle_website_credentials(
-                            app, key.code,
+                            app, key_event,
                         )
                     {
                         return res;
@@ -91,14 +91,14 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<
                 CurrentScreen::SpecificCredentialScreen => {
                     if let Some(res) =
                         controller::specific_credential_controller::handle_specific_credential(
-                            app, key.code,
+                            app, key_event,
                         )
                     {
                         return res;
                     }
                 }
                 CurrentScreen::Exiting => {
-                    if let Some(res) = controller::exit_controller::handle_exit(app, key.code) {
+                    if let Some(res) = controller::exit_controller::handle_exit(app, key_event) {
                         return res;
                     }
                 }
