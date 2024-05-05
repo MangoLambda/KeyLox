@@ -1,24 +1,14 @@
-use std::{
-    error::Error,
-    io::{self, stdout},
-    panic,
-};
+use std::{error::Error, io, panic};
 
 use color_eyre::{config::HookBuilder, eyre};
 
-use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
-};
-use ratatui::{
-    backend::{Backend, CrosstermBackend},
-    Terminal,
-};
+use crossterm::event::{self, Event};
+use ratatui::{backend::Backend, Terminal};
 
 mod app;
 mod controller;
 mod models;
+mod tui;
 mod ui;
 use crate::{
     app::app::{App, CurrentScreen},
@@ -30,24 +20,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     install_hooks()?;
 
     // setup terminal
-    enable_raw_mode()?;
-    let mut stderr = io::stderr(); // This is a special case. Normally using stdout is fine
-    execute!(stderr, EnterAlternateScreen, EnableMouseCapture)?;
-    let backend = CrosstermBackend::new(stderr);
-    let mut terminal = Terminal::new(backend)?;
+    let mut terminal = tui::init()?;
 
     // create app and run it
     let mut app = App::new();
     let res = run_app(&mut terminal, &mut app);
 
     // restore terminal
-    disable_raw_mode()?;
-    execute!(
-        terminal.backend_mut(),
-        LeaveAlternateScreen,
-        DisableMouseCapture
-    )?;
-    terminal.show_cursor()?;
+    tui::restore()?;
 
     if let Ok(do_print) = res {
         if do_print {
@@ -142,7 +122,6 @@ pub fn install_hooks() -> color_eyre::Result<()> {
 
 /// Restore the terminal to its original state
 pub fn restore() -> io::Result<()> {
-    execute!(stdout(), LeaveAlternateScreen)?;
-    disable_raw_mode()?;
+    tui::restore()?;
     Ok(())
 }

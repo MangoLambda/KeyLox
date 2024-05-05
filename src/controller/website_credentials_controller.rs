@@ -1,3 +1,4 @@
+use core::panic;
 use std::io;
 
 use crate::app::app::{App, CurrentScreen, CurrentlyEditingCredentialField};
