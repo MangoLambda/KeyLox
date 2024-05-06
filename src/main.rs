@@ -7,6 +7,7 @@ use ratatui::{backend::Backend, Terminal};
 
 mod app;
 mod controller;
+mod errors;
 mod models;
 mod tui;
 mod ui;
@@ -17,7 +18,7 @@ use crate::{
 
 fn main() -> Result<(), Box<dyn Error>> {
     // setup panic hook
-    install_hooks()?;
+    errors::install_hooks()?;
 
     // setup terminal
     let mut terminal = tui::init()?;
@@ -94,34 +95,4 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<
             }
         }
     }
-}
-
-/// This replaces the standard color_eyre panic and error hooks with hooks that
-/// restore the terminal before printing the panic or error.
-pub fn install_hooks() -> color_eyre::Result<()> {
-    let (panic_hook, eyre_hook) = HookBuilder::default().into_hooks();
-
-    // convert from a color_eyre PanicHook to a standard panic hook
-    let panic_hook = panic_hook.into_panic_hook();
-    panic::set_hook(Box::new(move |panic_info| {
-        restore().unwrap();
-        panic_hook(panic_info);
-    }));
-
-    // convert from a color_eyre EyreHook to a eyre ErrorHook
-    let eyre_hook = eyre_hook.into_eyre_hook();
-    eyre::set_hook(Box::new(
-        move |error: &(dyn std::error::Error + 'static)| {
-            restore().unwrap();
-            eyre_hook(error)
-        },
-    ))?;
-
-    Ok(())
-}
-
-/// Restore the terminal to its original state
-pub fn restore() -> io::Result<()> {
-    tui::restore()?;
-    Ok(())
 }
