@@ -6,8 +6,6 @@ use ratatui::{
     Frame,
 };
 
-use crate::app::app::App;
-
 pub fn render_title(f: &mut Frame, area: Rect) {
     let title_block = Block::default()
         .borders(Borders::ALL)

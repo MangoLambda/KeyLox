@@ -1,8 +1,8 @@
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
-    text::{Line, Span, Text},
-    widgets::{Block, Borders, Cell, Clear, List, ListItem, Paragraph, Row, Table, Wrap},
+    text::{Span, Text},
+    widgets::{Block, Borders, Cell, Paragraph, Row, Table, Wrap},
     Frame,
 };
 
@@ -31,7 +31,7 @@ pub fn ui(f: &mut Frame, app: &App) {
 
     match app.current_screen {
         CurrentScreen::MasterPasswordRequired => {
-            render_password_required_screen(f, app, &chunks);
+            render_password_required_screen(f, app);
         }
         CurrentScreen::MainCredentialScreen => {
             render_main_credentials_screen(f, app, &chunks);
@@ -43,14 +43,14 @@ pub fn ui(f: &mut Frame, app: &App) {
             render_specific_credentials_screen(f, app, &chunks);
         }
         CurrentScreen::Exiting => {
-            render_exit_screen(f, app, &chunks);
+            render_exit_screen(f);
         }
     }
 
     footer::render_footer(f, app, chunks[FOOTER_CHUNK_INDEX]);
 }
 
-fn render_password_required_screen(f: &mut Frame, app: &App, chunks: &[Rect]) {
+fn render_password_required_screen(f: &mut Frame, app: &App) {
     let popup_block = Block::default()
         .title("Master Password")
         .borders(Borders::ALL)
@@ -193,7 +193,7 @@ fn render_specific_credentials_screen(f: &mut Frame, app: &App, chunks: &[Rect])
     }
 }
 
-fn render_exit_screen(f: &mut Frame, app: &App, chunks: &[Rect]) {
+fn render_exit_screen(f: &mut Frame) {
     let popup_block = Block::default()
         .title("Unsaved Changes")
         .borders(Borders::NONE)
