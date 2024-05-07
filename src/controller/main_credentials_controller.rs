@@ -2,13 +2,7 @@ use std::io;
 
 use crate::app::app::{App, CurrentScreen, CurrentlyEditingCredentialField};
 
-use crossterm::{
-    event::{
-        self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEvent, KeyEventKind,
-    },
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
-};
+use crossterm::event::{KeyCode, KeyEvent};
 
 pub fn handle_main_credentials(app: &mut App, key_event: KeyEvent) -> Option<io::Result<bool>> {
     match key_event.code {
