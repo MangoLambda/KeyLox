@@ -8,10 +8,6 @@ use ratatui::{
 
 use crate::app::app::{App, CurrentScreen};
 
-const TITLE_CHUNK_INDEX: usize = 0;
-const MAIN_CHUNK_INDEX: usize = 1;
-const FOOTER_CHUNK_INDEX: usize = 2;
-
 pub fn render_footer(f: &mut Frame, app: &App, area: Rect) {
     let current_keys_hint = {
         match app.current_screen {
