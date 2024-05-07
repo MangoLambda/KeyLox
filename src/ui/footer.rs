@@ -1,3 +1,5 @@
+use crate::app::app::{App, CurrentScreen};
+
 use ratatui::{
     layout::Rect,
     style::{Color, Style},
@@ -5,8 +7,6 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
     Frame,
 };
-
-use crate::app::app::{App, CurrentScreen};
 
 pub fn render_footer(f: &mut Frame, app: &App, area: Rect) {
     let current_keys_hint = {

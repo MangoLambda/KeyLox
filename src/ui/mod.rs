@@ -1,3 +1,5 @@
+use crate::app::app::{App, CurrentScreen, CurrentlyEditingCredentialField};
+
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
@@ -5,8 +7,6 @@ use ratatui::{
     widgets::{Block, Borders, Cell, Paragraph, Row, Table, Wrap},
     Frame,
 };
-
-use crate::app::app::{App, CurrentScreen, CurrentlyEditingCredentialField};
 
 mod footer;
 mod helpers;

@@ -1,8 +1,7 @@
-use std::io;
-
 use crate::app::app::{App, CurrentScreen};
 
 use crossterm::event::{KeyCode, KeyEvent};
+use std::io;
 
 pub fn handle_master_password(app: &mut App, key_event: KeyEvent) -> Option<io::Result<bool>> {
     match key_event.code {

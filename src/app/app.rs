@@ -1,8 +1,7 @@
-use serde_json::Result;
-
 use crate::models::credentials::{Credential, Credentials};
 
 use super::credentials_storage;
+use serde_json::Result;
 
 pub enum CurrentScreen {
     MasterPasswordRequired,

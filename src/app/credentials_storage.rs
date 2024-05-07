@@ -1,9 +1,9 @@
+use crate::models::credentials::Credentials;
+
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 use std::{error::Error, io::BufReader};
-
-use crate::models::credentials::Credentials;
 
 pub fn store_credentials(credentials: &Credentials) -> Result<(), Box<dyn Error>> {
     let mut file = File::create("credentials.json")?;
