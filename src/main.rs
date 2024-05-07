@@ -1,6 +1,4 @@
-use std::{error::Error, io, panic};
-
-use color_eyre::{config::HookBuilder, eyre};
+use std::{error::Error, io};
 
 use crossterm::event::{self, Event};
 use ratatui::{backend::Backend, Terminal};

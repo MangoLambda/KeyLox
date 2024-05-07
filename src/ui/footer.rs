@@ -12,7 +12,7 @@ const TITLE_CHUNK_INDEX: usize = 0;
 const MAIN_CHUNK_INDEX: usize = 1;
 const FOOTER_CHUNK_INDEX: usize = 2;
 
-pub fn render_footer(f: &mut Frame, app: &App, chunks: &[Rect]) {
+pub fn render_footer(f: &mut Frame, app: &App, area: Rect) {
     let current_keys_hint = {
         match app.current_screen {
             CurrentScreen::MasterPasswordRequired => {
@@ -40,5 +40,5 @@ pub fn render_footer(f: &mut Frame, app: &App, chunks: &[Rect]) {
     let key_notes_footer =
         Paragraph::new(Line::from(current_keys_hint)).block(Block::default().borders(Borders::ALL));
 
-    f.render_widget(key_notes_footer, chunks[FOOTER_CHUNK_INDEX]);
+    f.render_widget(key_notes_footer, area);
 }

@@ -27,7 +27,7 @@ pub fn ui(f: &mut Frame, app: &App) {
         ])
         .split(f.size());
 
-    title::render_title(f, app, &chunks);
+    title::render_title(f, app, chunks[TITLE_CHUNK_INDEX]);
 
     match app.current_screen {
         CurrentScreen::MasterPasswordRequired => {
@@ -47,7 +47,7 @@ pub fn ui(f: &mut Frame, app: &App) {
         }
     }
 
-    footer::render_footer(f, app, &chunks);
+    footer::render_footer(f, app, chunks[FOOTER_CHUNK_INDEX]);
 }
 
 fn render_password_required_screen(f: &mut Frame, app: &App, chunks: &[Rect]) {
