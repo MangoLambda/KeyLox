@@ -6,10 +6,11 @@ use std::io;
 pub fn handle_master_password(app: &mut App, key_event: KeyEvent) -> Option<io::Result<bool>> {
     match key_event.code {
         KeyCode::Enter => {
+            app.load_credentials();
             if app.validate_master_password(&app.master_password_input) {
                 app.current_screen = CurrentScreen::MainCredentialScreen;
-                app.load_credentials();
             }
+
             app.master_password_input.clear();
         }
         KeyCode::Esc => {

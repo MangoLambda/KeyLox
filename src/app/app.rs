@@ -1,7 +1,11 @@
-use crate::models::credentials::{Credential, Credentials};
+use std::error::Error;
+
+use crate::models::{
+    credentials::{Credential, Credentials},
+    vault::Vault,
+};
 
 use super::credentials_storage;
-use serde_json::Result;
 
 pub enum CurrentScreen {
     MasterPasswordRequired,
@@ -28,6 +32,7 @@ pub struct App {
     pub selected_email_index: usize,   // the currently selected email.
     pub currently_editing_credential_field: Option<CurrentlyEditingCredentialField>, // the optional state containing which of the username or password the user is editing. It is an option, because when the user is not directly editing a credential, this will be set to `None`.
 
+    pub password_hash: String,
     pub credentials: Credentials,
 
     pub website_input: String,
@@ -59,13 +64,14 @@ impl App {
             currently_editing: None,
 
             credentials: Credentials::new(),
+            password_hash: String::new(),
         }
     }
 
     pub fn load_credentials(&mut self) {
         // TODO: error handling
-        if let Some(credentials) = credentials_storage::load_credentials().unwrap() {
-            self.credentials = credentials;
+        if let Some(vault) = credentials_storage::load_credentials().unwrap() {
+            self.credentials = vault.credentials.clone();
         }
 
         self.websites = self.credentials.get_websites();
@@ -227,9 +233,10 @@ impl App {
         }
     }
 
-    pub fn save_changes(&self) -> Result<()> {
+    pub fn save_changes(&self) -> Result<(), Box<dyn Error>> {
         // TODO: error handling
-        credentials_storage::store_credentials(&self.credentials).unwrap();
+        let vault = Vault::new(self.password_hash.clone(), self.credentials.clone());
+        credentials_storage::store_vault(&vault)?;
         println!("Changes saved");
         Ok(())
     }
