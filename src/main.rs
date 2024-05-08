@@ -86,7 +86,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<
                     }
                 }
                 CurrentScreen::Exiting => {
-                    if let Some(res) = controller::exit_controller::handle_exit(key_event) {
+                    if let Some(res) = controller::exit_controller::handle_exit(app, key_event) {
                         return res;
                     }
                 }
