@@ -1,8 +1,6 @@
-use std::{error::Error, io};
-
-use controller::init_controller::handle_init;
 use crossterm::event::{self, Event};
 use ratatui::{backend::Backend, Terminal};
+use std::{error::Error, io};
 
 mod app;
 mod controller;
