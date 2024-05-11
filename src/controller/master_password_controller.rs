@@ -7,10 +7,12 @@ pub fn handle_master_password(app: &mut App, key_event: KeyEvent) -> Option<io::
     match key_event.code {
         KeyCode::Enter => {
             app.load_credentials();
-            if app.validate_master_password(&app.master_password_input) {
+            let password_input = app.master_password_input.clone();
+            if app.validate_master_password(&password_input) {
                 app.current_screen = CurrentScreen::MainCredentialScreen;
             }
 
+            app.password_hash = app.master_password_input.clone();
             app.master_password_input.clear();
         }
         KeyCode::Esc => {

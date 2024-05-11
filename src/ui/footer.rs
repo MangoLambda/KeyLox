@@ -11,9 +11,14 @@ use ratatui::{
 pub fn render_footer(f: &mut Frame, app: &App, area: Rect) {
     let current_keys_hint = {
         match app.current_screen {
-            CurrentScreen::MasterPasswordRequired => {
-                Span::styled("Enter Master Password", Style::default().fg(Color::Red))
-            }
+            CurrentScreen::Init => Span::styled(
+                "", Style::default()
+            ),
+            CurrentScreen::NewPasswordRequiredScreen => Span::styled(
+                "Enter New Password", Style::default().fg(Color::Red)
+            ),
+            CurrentScreen::MasterPasswordRequiredScreen => Span::styled("Enter Master Password", Style::default().fg(Color::Red)
+            ),
             CurrentScreen::MainCredentialScreen => Span::styled(
                 "(Esc) to quit / (N) to make a new credential / (Return) to view",
                 Style::default().fg(Color::Red),

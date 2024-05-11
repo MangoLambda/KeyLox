@@ -1,5 +1,6 @@
 use std::{error::Error, io};
 
+use controller::init_controller::handle_init;
 use crossterm::event::{self, Event};
 use ratatui::{backend::Backend, Terminal};
 
@@ -40,6 +41,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<bool> {
+    controller::init_controller::handle_init(app);
+
     loop {
         terminal.draw(|f| ui(f, app))?;
 
@@ -49,7 +52,17 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Result<
                 continue;
             }
             match app.current_screen {
-                CurrentScreen::MasterPasswordRequired => {
+                CurrentScreen::Init => {
+                    // todo remove this?
+                }
+                CurrentScreen::NewPasswordRequiredScreen => {
+                    if let Some(res) =
+                        controller::new_password_controller::handle_new_password(app, key_event)
+                    {
+                        return res;
+                    }
+                }
+                CurrentScreen::MasterPasswordRequiredScreen => {
                     if let Some(res) =
                         controller::master_password_controller::handle_master_password(
                             app, key_event,

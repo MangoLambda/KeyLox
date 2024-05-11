@@ -17,7 +17,8 @@ Cargo.lock
 .DS_Store
 
 # Generated credentials file
-credentials.bin
+*credentials.json
+*credentials.bin
 
 # VS Code
 launch.json

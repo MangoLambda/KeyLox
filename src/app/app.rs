@@ -1,14 +1,15 @@
-use std::error::Error;
-
 use crate::models::{
     credentials::{Credential, Credentials},
     vault::Vault,
 };
 
-use super::credentials_storage;
+use super::credentials_storage::{self, load_credentials};
+use std::error::Error;
 
 pub enum CurrentScreen {
-    MasterPasswordRequired,
+    Init,
+    NewPasswordRequiredScreen,
+    MasterPasswordRequiredScreen,
     MainCredentialScreen,
     WebsiteCredentialScreen,
     SpecificCredentialScreen,
@@ -24,16 +25,20 @@ pub enum CurrentlyEditingCredentialField {
 }
 
 pub struct App {
-    pub master_password_input: String, // the currently being edited master password.
-    pub unsaved_changes: bool,         // a flag to determine if there are unsaved changes.
-    pub websites: Vec<String>,         // the list of credentials that the user has saved.
+    pub credentials_file_exists: bool,
+
+    pub unsaved_changes: bool, // a flag to determine if there are unsaved changes.
+    pub websites: Vec<String>, // the list of credentials that the user has saved.
     pub selected_website_index: usize, // the currently selected credential.
-    pub emails: Vec<String>,           // the list of emails that the user has saved.
-    pub selected_email_index: usize,   // the currently selected email.
+    pub emails: Vec<String>,   // the list of emails that the user has saved.
+    pub selected_email_index: usize, // the currently selected email.
     pub currently_editing_credential_field: Option<CurrentlyEditingCredentialField>, // the optional state containing which of the username or password the user is editing. It is an option, because when the user is not directly editing a credential, this will be set to `None`.
 
     pub password_hash: String,
     pub credentials: Credentials,
+
+    pub new_password_input: String, // the new password that the user is trying to set.
+    pub master_password_input: String, // the currently being edited master password.
 
     pub website_input: String,
     pub email_input: String,
@@ -46,8 +51,8 @@ pub struct App {
 
 impl App {
     pub fn new() -> App {
-        App {
-            master_password_input: String::new(),
+        let app = App {
+            credentials_file_exists: false,
             unsaved_changes: true,
             websites: Vec::new(),
             selected_website_index: 0,
@@ -55,23 +60,32 @@ impl App {
             selected_email_index: 0,
             currently_editing_credential_field: None,
 
+            new_password_input: String::new(),
+            master_password_input: String::new(),
+
             website_input: String::new(),
             email_input: String::new(),
             username_input: String::new(),
             password_input: String::new(),
             notes_input: String::new(),
-            current_screen: CurrentScreen::MasterPasswordRequired,
+            current_screen: CurrentScreen::Init,
             currently_editing: None,
 
             credentials: Credentials::new(),
             password_hash: String::new(),
-        }
+        };
+
+        load_credentials().unwrap();
+
+        return app;
     }
 
     pub fn load_credentials(&mut self) {
         // TODO: error handling
         if let Some(vault) = credentials_storage::load_credentials().unwrap() {
+            self.password_hash = vault.password_hash.clone();
             self.credentials = vault.credentials.clone();
+            self.credentials_file_exists = true;
         }
 
         self.websites = self.credentials.get_websites();
@@ -241,13 +255,7 @@ impl App {
         Ok(())
     }
 
-    pub fn validate_master_password(&self, password: &String) -> bool {
-        let good_password = "password";
-
-        if password == good_password {
-            return true;
-        }
-
-        return false;
+    pub fn validate_master_password(&mut self, password: &String) -> bool {
+        return password == &self.password_hash;
     }
 }
