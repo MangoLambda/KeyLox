@@ -11,3 +11,12 @@ ratatui = "0.26.2"
 serde = { version = "1.0.198", features = ["derive"] }
 rmp-serde = "1.3.0"
 serde_json = "1.0.117"
+
+[profile.release]
+opt-level = 2                # Maximum optimization for performance
+lto = true                   # Enable Link Time Optimization (LTO)
+panic = 'abort'              # Remove panic unwinding (smaller binary, faster)
+debug = false                # Disable debug information
+split-debuginfo = 'unpacked' # Option to split debug info if you need it for later analysis
+codegen-units = 1            # Reduce the number of codegen units to increase optimization
+incremental = false          # Disable incremental compilation to reduce binary size
