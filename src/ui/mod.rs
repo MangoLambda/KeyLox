@@ -3,13 +3,14 @@ use crate::app::app::{App, CurrentScreen, CurrentlyEditingCredentialField};
 use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
-    text::{Span, Text},
-    widgets::{Block, Borders, Cell, Paragraph, Row, Table, Wrap},
+    text::Span,
+    widgets::{Block, Borders, Cell, Paragraph, Row, Table},
     Frame,
 };
 
 mod footer;
 mod helpers;
+mod popups;
 mod title;
 
 const TITLE_CHUNK_INDEX: usize = 0;
@@ -32,10 +33,10 @@ pub fn ui(f: &mut Frame, app: &App) {
     match app.current_screen {
         CurrentScreen::Init => {}
         CurrentScreen::NewPasswordRequiredScreen => {
-            render_new_password_screen(f, app);
+            popups::new_password_required::render_new_password_required_popup(f, app);
         }
         CurrentScreen::MasterPasswordRequiredScreen => {
-            render_password_required_screen(f, app);
+            popups::master_password_required::render_master_password_required_popup(f, app);
         }
         CurrentScreen::MainCredentialScreen => {
             render_main_credentials_screen(f, app, &chunks);
@@ -47,47 +48,11 @@ pub fn ui(f: &mut Frame, app: &App) {
             render_specific_credentials_screen(f, app, &chunks);
         }
         CurrentScreen::Exiting => {
-            render_exit_screen(f);
+            popups::exit::render_exit_popup(f);
         }
     }
 
     footer::render_footer(f, app, chunks[FOOTER_CHUNK_INDEX]);
-}
-
-fn render_new_password_screen(f: &mut Frame, app: &App) {
-    let popup_block = Block::default()
-        .title("New Password")
-        .borders(Borders::ALL)
-        .style(Style::default().bg(Color::LightYellow));
-
-    // the `trim: false` will stop the text from being cut off when over the edge of the block
-    let password_str: String = std::iter::repeat('*')
-        .take(app.new_password_input.len())
-        .collect();
-    let password_paragraph = Paragraph::new(password_str)
-        .block(popup_block)
-        .wrap(Wrap { trim: false });
-
-    let area = new_password_required_rect(50, f.size());
-    f.render_widget(password_paragraph, area);
-}
-
-fn render_password_required_screen(f: &mut Frame, app: &App) {
-    let popup_block = Block::default()
-        .title("Master Password")
-        .borders(Borders::ALL)
-        .style(Style::default().bg(Color::LightYellow));
-
-    // the `trim: false` will stop the text from being cut off when over the edge of the block
-    let password_str: String = std::iter::repeat('*')
-        .take(app.master_password_input.len())
-        .collect();
-    let password_paragraph = Paragraph::new(password_str)
-        .block(popup_block)
-        .wrap(Wrap { trim: false });
-
-    let area = master_password_required_rect(50, f.size());
-    f.render_widget(password_paragraph, area);
 }
 
 fn render_main_credentials_screen(f: &mut Frame, app: &App, chunks: &[Rect]) {
@@ -213,90 +178,4 @@ fn render_specific_credentials_screen(f: &mut Frame, app: &App, chunks: &[Rect])
         let notes_text = Paragraph::new(app.notes_input.clone()).block(notes_block);
         f.render_widget(notes_text, popup_chunks[4]);
     }
-}
-
-fn render_exit_screen(f: &mut Frame) {
-    let popup_block = Block::default()
-        .title("Unsaved Changes")
-        .borders(Borders::NONE)
-        .style(Style::default().bg(Color::Black));
-
-    let exit_text = Text::styled(
-        "Would you like to save your changes? (y/n)",
-        Style::default().fg(Color::White),
-    );
-    // the `trim: false` will stop the text from being cut off when over the edge of the block
-    let exit_paragraph = Paragraph::new(exit_text)
-        .block(popup_block)
-        .wrap(Wrap { trim: false });
-
-    let area = centered_rect(60, 25, f.size());
-    f.render_widget(exit_paragraph, area);
-}
-
-fn master_password_required_rect(percent_x: u16, r: Rect) -> Rect {
-    // Cut the given rectangle into three vertical pieces
-    let popup_layout = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([
-            Constraint::Fill(u16::MAX),
-            Constraint::Length(3),
-            Constraint::Fill(u16::MAX),
-        ])
-        .split(r);
-
-    // Then cut the middle vertical piece into three width-wise pieces
-    Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([
-            Constraint::Percentage((100 - percent_x) / 2),
-            Constraint::Percentage(percent_x),
-            Constraint::Percentage((100 - percent_x) / 2),
-        ])
-        .split(popup_layout[1])[1] // Return the middle chunk
-}
-
-fn new_password_required_rect(percent_x: u16, r: Rect) -> Rect {
-    // Cut the given rectangle into three vertical pieces
-    let popup_layout = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([
-            Constraint::Fill(u16::MAX),
-            Constraint::Length(3),
-            Constraint::Fill(u16::MAX),
-        ])
-        .split(r);
-
-    // Then cut the middle vertical piece into three width-wise pieces
-    Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([
-            Constraint::Percentage((100 - percent_x) / 2),
-            Constraint::Percentage(percent_x),
-            Constraint::Percentage((100 - percent_x) / 2),
-        ])
-        .split(popup_layout[1])[1] // Return the middle chunk
-}
-
-/// helper function to create a centered rect using up certain percentage of the available rect `r`
-fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
-    // Cut the given rectangle into three vertical pieces
-    let popup_layout = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([
-            Constraint::Percentage((100 - percent_y) / 2),
-            Constraint::Percentage(percent_y),
-            Constraint::Percentage((100 - percent_y) / 2),
-        ])
-        .split(r);
-
-    // Then cut the middle vertical piece into three width-wise pieces
-    Layout::default()
-        .direction(Direction::Horizontal)
-        .constraints([
-            Constraint::Percentage((100 - percent_x) / 2),
-            Constraint::Percentage(percent_x),
-            Constraint::Percentage((100 - percent_x) / 2),
-        ])
-        .split(popup_layout[1])[1] // Return the middle chunk
 }
