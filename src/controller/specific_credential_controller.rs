@@ -57,7 +57,7 @@ pub fn handle_specific_credential(app: &mut App, key_event: KeyEvent) -> Option<
         }
         KeyEvent {
             code: KeyCode::Char(value),
-            modifiers: KeyModifiers::NONE,
+            modifiers: KeyModifiers::NONE | KeyModifiers::SHIFT,
             kind: _,
             state: _,
         } => {
