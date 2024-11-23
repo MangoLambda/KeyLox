@@ -2,9 +2,9 @@ use crate::app::models::credentials::{Credential, Credentials};
 
 use super::{
     credentials_storage::{self, load_credentials},
-    vault_encryptor,
+    pbkdf, vault_encryptor,
 };
-use argon2::Argon2;
+
 use rand::rngs::OsRng;
 use rand::Rng;
 use std::error::Error;
@@ -88,29 +88,11 @@ impl App {
     pub fn load_credentials(&mut self, password: &str) -> Result<(), Box<dyn Error>> {
         // TODO: error handling
         if let Some(vault) = credentials_storage::load_credentials().unwrap() {
-            // TODO: extract method in crate
-            let salt = vault.salt.as_slice();
-            let mut output_key_material = [0u8; 32]; // Can be any desired size
-            let config = argon2::ParamsBuilder::default()
-                .m_cost(65_536)
-                .t_cost(3)
-                .p_cost(4)
-                .output_len(32)
-                .build()
-                .unwrap();
-
-            let argon2 = Argon2::new(argon2::Algorithm::Argon2id, argon2::Version::V0x13, config);
-            argon2
-                .hash_password_into(password.as_bytes(), salt, &mut output_key_material)
-                .unwrap();
-
-            self.master_key = output_key_material.to_vec();
+            self.master_key = pbkdf::derive_key(&password, &vault.salt.as_slice()).to_vec();
             self.master_salt = vault.salt.clone();
 
-            //self.password_hash = vault.password_hash.clone();
             // TODO: error handling
-            self.credentials =
-                vault_encryptor::decrypt(&output_key_material.to_vec(), vault).unwrap();
+            self.credentials = vault_encryptor::decrypt(&self.master_key.to_vec(), vault).unwrap();
             self.credentials_file_exists = true;
         }
 
@@ -291,21 +273,9 @@ impl App {
     pub fn generate_initial_master_key_from_password(&mut self, password: &str) {
         let mut rng = OsRng;
         let salt: [u8; 32] = rng.gen(); // 32 bytes of random data
-        let mut output_key_material = [0u8; 32]; // Can be any desired size
-        let config = argon2::ParamsBuilder::default()
-            .m_cost(65_536)
-            .t_cost(3)
-            .p_cost(4)
-            .output_len(32)
-            .build()
-            .unwrap();
 
-        let argon2 = Argon2::new(argon2::Algorithm::Argon2id, argon2::Version::V0x13, config);
-        argon2
-            .hash_password_into(password.as_bytes(), &salt, &mut output_key_material)
-            .unwrap();
-
-        self.master_key = output_key_material.to_vec().clone();
+        // TODO: Error handling
+        self.master_key = pbkdf::derive_key(password, &salt).to_vec();
         self.master_salt = salt.to_vec().clone();
     }
 }
