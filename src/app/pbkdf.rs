@@ -3,7 +3,7 @@ use argon2::Argon2;
 const KEY_SIZE: usize = 32;
 const TIME_COST: u32 = 3;
 const PARALLELISM_COST: u32 = 4;
-const MEM_COST_MIB: u32 = 64;
+const MEM_COST_MIB: u32 = 1024;
 const MEM_COST_KIB: u32 = MEM_COST_MIB * 1024;
 
 pub fn derive_key(password: &str, salt: &[u8]) -> [u8; KEY_SIZE] {
