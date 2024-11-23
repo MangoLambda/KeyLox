@@ -19,6 +19,7 @@ Cargo.lock
 # Generated credentials file
 *credentials.json
 *credentials.bin
+*credentials.msgpack
 
 # VS Code
 launch.json
