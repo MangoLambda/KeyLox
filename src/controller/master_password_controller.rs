@@ -8,11 +8,15 @@ pub fn handle_master_password(app: &mut App, key_event: KeyEvent) -> Option<io::
         KeyCode::Enter => {
             let password_input = app.master_password_input.clone();
 
-            if app.load_credentials(&password_input).is_ok() {
-                app.current_screen = CurrentScreen::MainCredentialScreen;
+            match app.load_credentials(&password_input) {
+                Ok(_) => {
+                    app.current_screen = CurrentScreen::MainCredentialScreen;
+                }
+                Err(_) => {
+                    // TODO: Start animation?
+                }
             }
 
-            //app.master_key = app.master_password_input.clone();
             app.master_password_input.clear();
         }
         KeyCode::Esc => {

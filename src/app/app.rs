@@ -28,8 +28,6 @@ pub enum CurrentlyEditingCredentialField {
 }
 
 pub struct App {
-    pub credentials_file_exists: bool,
-
     pub unsaved_changes: bool, // a flag to determine if there are unsaved changes.
     pub websites: Vec<String>, // the list of credentials that the user has saved.
     pub selected_website_index: usize, // the currently selected credential.
@@ -56,7 +54,6 @@ pub struct App {
 impl App {
     pub fn new() -> App {
         let app = App {
-            credentials_file_exists: false,
             unsaved_changes: true,
             websites: Vec::new(),
             selected_website_index: 0,
@@ -91,9 +88,7 @@ impl App {
             self.master_key = pbkdf::derive_key(&password, &vault.salt.as_slice()).to_vec();
             self.master_salt = vault.salt.clone();
 
-            // TODO: error handling
-            self.credentials = vault_encryptor::decrypt(&self.master_key.to_vec(), vault).unwrap();
-            self.credentials_file_exists = true;
+            self.credentials = vault_encryptor::decrypt(&self.master_key.to_vec(), vault)?;
         }
 
         self.websites = self.credentials.get_websites();
