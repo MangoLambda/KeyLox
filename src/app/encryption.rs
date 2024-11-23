@@ -28,9 +28,10 @@ pub fn encrypt_in_place(
 ) -> ([u8; NONCE_SIZE], [u8; AUTH_TAG_SIZE]) {
     let mut rng = OsRng;
     let nonce: [u8; NONCE_SIZE] = rng.gen(); // 32 bytes of random data
+    let key: [u8; KEY_SIZE] = key.try_into().unwrap();
 
     // TODO: Error handling if key size is incorrect
-    let aegis = Aegis256::<AUTH_TAG_SIZE>::new(&nonce, key.try_into().unwrap());
+    let aegis = Aegis256::<AUTH_TAG_SIZE>::new(&key, &nonce);
     let tag = aegis.encrypt_in_place(message, &associated_data);
 
     return (nonce, tag);
@@ -44,12 +45,12 @@ pub fn decrypt_in_place(
     message: &mut [u8],
 ) -> Result<(), DecryptionError> {
     // TODO Error handling
-    let key = key.try_into().unwrap();
-    let nonce = nonce.try_into().unwrap();
-    let auth_tag = auth_tag.try_into().unwrap();
-    let aegis = Aegis256::<AUTH_TAG_SIZE>::new(&nonce, &key);
+    let key: [u8; KEY_SIZE] = key.try_into().unwrap();
+    let nonce: [u8; NONCE_SIZE] = nonce.try_into().unwrap();
+    let auth_tag: [u8; AUTH_TAG_SIZE] = auth_tag.try_into().unwrap();
+    let aegis = Aegis256::<AUTH_TAG_SIZE>::new(&key, &nonce);
 
     aegis
-        .decrypt_in_place(message, auth_tag, &associated_data)
+        .decrypt_in_place(message, &auth_tag, &associated_data)
         .map_err(|_| DecryptionError)
 }
