@@ -7,7 +7,8 @@ use std::io;
 pub fn handle_new_password(app: &mut App, key_event: KeyEvent) -> Option<io::Result<bool>> {
     match key_event.code {
         KeyCode::Enter => {
-            app.password_hash = app.new_password_input.clone();
+            //app.master_key =
+            app.generate_initial_master_key_from_password(&app.new_password_input.clone());
             app.new_password_input.clear();
             app.current_screen = CurrentScreen::MainCredentialScreen;
         }

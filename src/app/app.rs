@@ -1,9 +1,18 @@
-use crate::models::{
-    credentials::{Credential, Credentials},
-    vault::Vault,
+use crate::app::{
+    models::{
+        credentials::{Credential, Credentials},
+        vault::Vault,
+    },
+    vault_encryptor::encrypt,
 };
 
-use super::credentials_storage::{self, load_credentials};
+use super::{
+    credentials_storage::{self, load_credentials},
+    vault_encryptor,
+};
+use argon2::Argon2;
+use rand::rngs::OsRng;
+use rand::Rng;
 use std::error::Error;
 
 pub enum CurrentScreen {
@@ -34,7 +43,8 @@ pub struct App {
     pub selected_email_index: usize, // the currently selected email.
     pub currently_editing_credential_field: Option<CurrentlyEditingCredentialField>, // the optional state containing which of the username or password the user is editing. It is an option, because when the user is not directly editing a credential, this will be set to `None`.
 
-    pub password_hash: String,
+    pub master_key: Vec<u8>,
+    pub master_salt: Vec<u8>,
     pub credentials: Credentials,
 
     pub new_password_input: String, // the new password that the user is trying to set.
@@ -72,7 +82,8 @@ impl App {
             currently_editing: None,
 
             credentials: Credentials::new(),
-            password_hash: String::new(),
+            master_key: Vec::new(),
+            master_salt: Vec::new(),
         };
 
         load_credentials().unwrap();
@@ -80,15 +91,38 @@ impl App {
         return app;
     }
 
-    pub fn load_credentials(&mut self) {
+    pub fn load_credentials(&mut self, password: &str) -> Result<(), Box<dyn Error>> {
         // TODO: error handling
         if let Some(vault) = credentials_storage::load_credentials().unwrap() {
-            self.password_hash = vault.password_hash.clone();
-            self.credentials = vault.credentials.clone();
+            // TODO: extract method in crate
+            let salt = vault.salt.as_slice();
+            let mut output_key_material = [0u8; 32]; // Can be any desired size
+            let config = argon2::ParamsBuilder::default()
+                .m_cost(2_097_152)
+                .t_cost(4)
+                .p_cost(1)
+                .output_len(32)
+                .build()
+                .unwrap();
+
+            let argon2 = Argon2::new(argon2::Algorithm::Argon2id, argon2::Version::V0x13, config);
+            argon2
+                .hash_password_into(password.as_bytes(), salt, &mut output_key_material)
+                .unwrap();
+
+            self.master_key = output_key_material.to_vec();
+            self.master_salt = vault.salt.clone();
+
+            //self.password_hash = vault.password_hash.clone();
+            // TODO: error handling
+            self.credentials =
+                vault_encryptor::decrypt(&output_key_material.to_vec(), vault).unwrap();
             self.credentials_file_exists = true;
         }
 
         self.websites = self.credentials.get_websites();
+
+        Ok(())
     }
 
     pub fn load_emails(&mut self) {
@@ -249,13 +283,41 @@ impl App {
 
     pub fn save_changes(&self) -> Result<(), Box<dyn Error>> {
         // TODO: error handling
-        let vault = Vault::new(self.password_hash.clone(), self.credentials.clone());
+        let vault = vault_encryptor::encrypt(
+            &self.master_salt,
+            &self.master_key,
+            self.credentials.clone(),
+        );
+
         credentials_storage::store_vault(&vault)?;
         println!("Changes saved");
         Ok(())
     }
 
     pub fn validate_master_password(&mut self, password: &String) -> bool {
-        return password == &self.password_hash;
+        //TODO: remove method
+        //return password == &self.password_hash;
+        return false;
+    }
+
+    pub fn generate_initial_master_key_from_password(&mut self, password: &str) {
+        let mut rng = OsRng;
+        let salt: [u8; 32] = rng.gen(); // 32 bytes of random data
+        let mut output_key_material = [0u8; 32]; // Can be any desired size
+        let config = argon2::ParamsBuilder::default()
+            .m_cost(2_097_152)
+            .t_cost(4)
+            .p_cost(1)
+            .output_len(32)
+            .build()
+            .unwrap();
+
+        let argon2 = Argon2::new(argon2::Algorithm::Argon2id, argon2::Version::V0x13, config);
+        argon2
+            .hash_password_into(password.as_bytes(), &salt, &mut output_key_material)
+            .unwrap();
+
+        self.master_key = output_key_material.to_vec().clone();
+        self.master_salt = salt.to_vec().clone();
     }
 }

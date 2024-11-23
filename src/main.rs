@@ -5,7 +5,7 @@ use std::{error::Error, io};
 mod app;
 mod controller;
 mod errors;
-mod models;
+//mod models;
 mod tui;
 mod ui;
 use crate::{

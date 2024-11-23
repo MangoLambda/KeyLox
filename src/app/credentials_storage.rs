@@ -1,4 +1,4 @@
-use crate::models::vault::Vault;
+use crate::app::models::vault::Vault;
 
 use std::fs::File;
 use std::io::Write;
@@ -12,6 +12,10 @@ pub fn store_vault(vault: &Vault) -> Result<(), Box<dyn Error>> {
     file.write_all(&credentials_json.into_bytes())?;
     //file.write_all(serialized_vault.as_slice())?;
     Ok(())
+}
+
+pub fn are_credentials_present() -> bool {
+    Path::new("credentials.json").exists()
 }
 
 pub fn load_credentials() -> Result<Option<Vault>, Box<dyn Error>> {
