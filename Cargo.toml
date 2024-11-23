@@ -22,3 +22,6 @@ debug = false                # Disable debug information
 split-debuginfo = 'unpacked' # Option to split debug info if you need it for later analysis
 codegen-units = 1            # Reduce the number of codegen units to increase optimization
 incremental = false          # Disable incremental compilation to reduce binary size
+
+[profile.dev.package."argon2"]
+opt-level = 2 # Argon2 optimizations in debug for fast key derivation
