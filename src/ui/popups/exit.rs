@@ -21,7 +21,7 @@ pub fn render_exit_popup(f: &mut Frame) {
         .block(popup_block)
         .wrap(Wrap { trim: false });
 
-    let area = centered_rect(60, 25, f.size());
+    let area = centered_rect(60, 25, f.area());
     f.render_widget(exit_paragraph, area);
 }
 

@@ -26,7 +26,7 @@ pub fn ui(f: &mut Frame, app: &App) {
             Constraint::Min(1),
             Constraint::Length(3),
         ])
-        .split(f.size());
+        .split(f.area());
 
     title::render_title(f, chunks[TITLE_CHUNK_INDEX]);
 

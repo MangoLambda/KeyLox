@@ -21,7 +21,7 @@ pub fn render_master_password_required_popup(f: &mut Frame, app: &App) {
         .block(popup_block)
         .wrap(Wrap { trim: false });
 
-    let area = master_password_required_rect(50, f.size());
+    let area = master_password_required_rect(50, f.area());
     f.render_widget(password_paragraph, area);
 }
 
