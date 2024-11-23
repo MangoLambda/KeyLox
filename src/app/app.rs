@@ -92,9 +92,9 @@ impl App {
             let salt = vault.salt.as_slice();
             let mut output_key_material = [0u8; 32]; // Can be any desired size
             let config = argon2::ParamsBuilder::default()
-                .m_cost(2_097_152)
-                .t_cost(4)
-                .p_cost(1)
+                .m_cost(65_536)
+                .t_cost(3)
+                .p_cost(4)
                 .output_len(32)
                 .build()
                 .unwrap();
@@ -293,9 +293,9 @@ impl App {
         let salt: [u8; 32] = rng.gen(); // 32 bytes of random data
         let mut output_key_material = [0u8; 32]; // Can be any desired size
         let config = argon2::ParamsBuilder::default()
-            .m_cost(2_097_152)
-            .t_cost(4)
-            .p_cost(1)
+            .m_cost(65_536)
+            .t_cost(3)
+            .p_cost(4)
             .output_len(32)
             .build()
             .unwrap();
