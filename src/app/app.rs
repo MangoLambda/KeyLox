@@ -1,10 +1,4 @@
-use crate::app::{
-    models::{
-        credentials::{Credential, Credentials},
-        vault::Vault,
-    },
-    vault_encryptor::encrypt,
-};
+use crate::app::models::credentials::{Credential, Credentials};
 
 use super::{
     credentials_storage::{self, load_credentials},
@@ -292,12 +286,6 @@ impl App {
         credentials_storage::store_vault(&vault)?;
         println!("Changes saved");
         Ok(())
-    }
-
-    pub fn validate_master_password(&mut self, password: &String) -> bool {
-        //TODO: remove method
-        //return password == &self.password_hash;
-        return false;
     }
 
     pub fn generate_initial_master_key_from_password(&mut self, password: &str) {
