@@ -1,3 +1,7 @@
+## Disclaimer
+
+This project is currently in the early stages of development and is intended for experimental and educational purposes only. Use it at your own risk.
+
 ## Overview
 
 KeyLox is a Terminal User Interface (TUI) based password manager designed to securely store and manage your credentials. It leverages the Argon2 algorithm for password derivation and Aegis256 for encrypting your credentials.
