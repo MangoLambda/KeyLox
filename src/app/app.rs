@@ -1,7 +1,12 @@
-use crate::app::models::credentials::{Credential, Credentials};
+use crate::app::models::{
+    credentials::{Credential, Credentials},
+    vault::Vault,
+    vault_security_params::{self, Argon2VariantEnum},
+};
 
 use super::{
     credentials_storage::{self, load_credentials},
+    models::vault_security_params::{Argon2Params, KdfParamsEnum},
     pbkdf, vault_encryptor,
 };
 
@@ -36,7 +41,7 @@ pub struct App {
     pub currently_editing_credential_field: Option<CurrentlyEditingCredentialField>, // the optional state containing which of the username or password the user is editing. It is an option, because when the user is not directly editing a credential, this will be set to `None`.
 
     pub master_key: Vec<u8>,
-    pub master_salt: Vec<u8>,
+    pub kdf_params: Option<KdfParamsEnum>,
     pub credentials: Credentials,
 
     pub new_password_input: String, // the new password that the user is trying to set.
@@ -74,7 +79,7 @@ impl App {
 
             credentials: Credentials::new(),
             master_key: Vec::new(),
-            master_salt: Vec::new(),
+            kdf_params: None,
         };
 
         load_credentials().unwrap();
@@ -86,8 +91,11 @@ impl App {
         if let Some(vault) =
             credentials_storage::load_credentials().expect("Failed to load credentials.")
         {
-            self.master_key = pbkdf::derive_key(&password, &vault.salt.as_slice()).to_vec();
-            self.master_salt = vault.salt.clone();
+            // TODO: Error handling
+            self.kdf_params = Some(vault.vault_security_params.get_kdf_params().clone());
+
+            self.master_key =
+                pbkdf::derive_key(self.kdf_params.as_ref().unwrap(), &password).unwrap();
 
             self.credentials = vault_encryptor::decrypt(&self.master_key.to_vec(), vault)?;
         }
@@ -255,11 +263,15 @@ impl App {
 
     pub fn save_changes(&self) -> Result<(), Box<dyn Error>> {
         // TODO: error handling
-        let vault = vault_encryptor::encrypt(
-            &self.master_salt,
-            &self.master_key,
-            self.credentials.clone(),
+        let (encryption_params, encrypted_credentials) =
+            vault_encryptor::encrypt(&self.master_key, self.credentials.clone());
+
+        let vault_security_params = vault_security_params::VaultSecurityParams::new(
+            self.kdf_params.clone().unwrap(),
+            encryption_params,
         );
+
+        let vault = Vault::new(vault_security_params, encrypted_credentials.as_slice());
 
         credentials_storage::store_vault(&vault)?;
         println!("Changes saved");
@@ -267,11 +279,21 @@ impl App {
     }
 
     pub fn generate_initial_master_key_from_password(&mut self, password: &str) {
+        // TODO: Error handling
         let mut rng = OsRng;
         let salt: [u8; 32] = rng.gen(); // 32 bytes of random data
 
-        // TODO: Error handling
-        self.master_key = pbkdf::derive_key(password, &salt).to_vec();
-        self.master_salt = salt.to_vec().clone();
+        // TODO set these default values somewhere else
+        self.kdf_params = Some(KdfParamsEnum::Argon2(Argon2Params::new(
+            Argon2VariantEnum::Argon2id,
+            0x13,
+            1024,
+            3,
+            4,
+            32,
+            salt.to_vec(),
+        )));
+
+        self.master_key = pbkdf::derive_key(self.kdf_params.as_ref().unwrap(), password).unwrap();
     }
 }
