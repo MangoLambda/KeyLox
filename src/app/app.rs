@@ -83,8 +83,9 @@ impl App {
     }
 
     pub fn load_credentials(&mut self, password: &str) -> Result<(), Box<dyn Error>> {
-        // TODO: error handling
-        if let Some(vault) = credentials_storage::load_credentials().unwrap() {
+        if let Some(vault) =
+            credentials_storage::load_credentials().expect("Failed to load credentials.")
+        {
             self.master_key = pbkdf::derive_key(&password, &vault.salt.as_slice()).to_vec();
             self.master_salt = vault.salt.clone();
 

@@ -12,9 +12,7 @@ pub fn handle_master_password(app: &mut App, key_event: KeyEvent) -> Option<io::
                 Ok(_) => {
                     app.current_screen = CurrentScreen::MainCredentialScreen;
                 }
-                Err(_) => {
-                    // TODO: Start animation?
-                }
+                Err(_) => {}
             }
 
             app.master_password_input.clear();
